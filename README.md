@@ -4,6 +4,35 @@ A drop-in compatibility shim for mobile-first PWAs that need stable layout
 when the iOS virtual keyboard opens. No framework dependencies — plain JS +
 CSS, tested inside a SvelteKit SPA but framework-agnostic.
 
+## Why this exists
+
+Every mobile-first web app running on iOS Safari eventually hits the same
+wall: the moment a virtual keyboard opens, `position: fixed` chrome jumps
+off-screen, the focused input lands behind the keyboard, the document
+scrolls despite `body { overflow: hidden }`, and — if the user backgrounds
+the app with the keyboard open — the layout stays broken after restore.
+
+The "official" answers don't deliver:
+
+- **`interactive-widget=resizes-content`** — ignored by iOS Safari
+- **`VirtualKeyboard API`** (`overlaysContent` + `env(keyboard-inset-*)`) — Chromium only; not in iOS
+- **`100dvh` / dynamic viewport units** — don't respond to the virtual keyboard on iOS
+- **Popular libraries** — usually one patch (e.g. `preventScroll`) without the timing,
+  background/restore, touch-action, and scroll-padding pieces that make it actually work
+
+This repo bundles the **four converging fixes** required for a stable mobile-first
+layout on iOS, plus a **dev-only diagnostic overlay** that caught the bugs in the
+first place.
+
+## Keywords
+
+`ios safari` · `pwa` · `virtual keyboard` · `visualviewport` · `position fixed`
+· `body overflow hidden` · `focus` · `preventscroll` · `scrollintoview` ·
+`scroll-padding-bottom` · `touch-action` · `visibilitychange` · `pagehide` ·
+`pageshow` · `bfcache` · `standalone pwa` · `mobile-first` · `svelte` ·
+`sveltekit` · `react` · `vue` · `keyboard inset` · `app header disappears`
+· `input hidden behind keyboard` · `layout shift keyboard`
+
 ## What this fixes
 
 - **App header / UI chrome disappearing** when keyboard opens (iOS pans visual viewport)
