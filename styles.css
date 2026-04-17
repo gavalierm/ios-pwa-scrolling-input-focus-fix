@@ -1,0 +1,105 @@
+/* ============================================================================
+ * iOS keyboard / viewport fix — essential CSS
+ *
+ * Adapt class names to your own codebase. These rules work together with
+ * viewport.js; neither half is effective alone.
+ * ============================================================================ */
+
+/* ─── Layout invariants ──────────────────────────────────────────────────────
+ * html/body must be non-scrollable. Real scrolling happens inside nested
+ * containers (.app-content, .sheet-content). overscroll-behavior:none blocks
+ * bounce/chain to the document.
+ */
+html,
+body {
+  overflow: hidden;
+  height: 100dvh;
+  width: 100vw;
+  overscroll-behavior: none;
+}
+
+/* ─── CSS custom property written by viewport.js ─────────────────────────────
+ * --kb-inset = height of virtual keyboard (0 when closed). Set on <html>.
+ */
+:root {
+  /* --kb-inset is written at runtime by setupViewport() — no default needed */
+  --app-header-height: calc(env(safe-area-inset-top, 0px) + 3.5rem);
+}
+
+/* ─── Fixed chrome elements ──────────────────────────────────────────────────
+ * touch-action:none prevents drag gestures from bubbling to the document
+ * scroll when iOS opens the keyboard (document becomes scrollable). Tap/click
+ * still work; only native scroll/pan is suppressed.
+ */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  touch-action: none;
+}
+
+.app-bar-wrapper {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  touch-action: none;
+}
+
+/* ─── Main scroll container ──────────────────────────────────────────────────
+ * scroll-padding-bottom tells the browser that the bottom N px are "off-limits"
+ * (covered by keyboard) so scrollIntoView respects this safe area.
+ * overscroll-behavior:contain blocks scroll chain to html/body.
+ */
+.app-content {
+  flex: 1;
+  overflow: scroll;
+  overscroll-behavior: contain;
+  scroll-padding-bottom: var(--kb-inset, 0px);
+}
+
+/* ─── Modal sheet (bottom drawer) ────────────────────────────────────────────
+ * Sheet stays anchored to viewport bottom (does NOT shift when keyboard opens).
+ * Keyboard visually covers lower part of sheet; sheet-content scrolls inside
+ * to reveal any focused input. padding-bottom expands by --kb-inset to give
+ * scroll range for content that was at the natural bottom.
+ *
+ * z-index 70 (backdrop) / 80 (sheet) sit above app chrome (60) so header/bar
+ * buttons are not clickable through the open sheet.
+ */
+.sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.app-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  min-height: min(66dvh, calc(100dvh - var(--app-header-height)));
+  max-height: calc(100dvh - var(--app-header-height));
+  border-radius: 2rem 2rem 0 0;
+  /* Block drag on non-scrollable chrome (drag handle, title) from bubbling
+   * to document scroll. Child .sheet-content overrides to pan-y. */
+  touch-action: none;
+}
+
+.sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* Override parent touch-action so native vertical scroll works inside. */
+  touch-action: pan-y;
+  /* Expand content area by keyboard height so scrollIntoView has room.
+   * Adjust the 5rem + safe-area terms to your own app's bottom spacing. */
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px) + var(--kb-inset, 0px));
+  /* Reserve bottom = keyboard height for scrollIntoView calculations. */
+  scroll-padding-bottom: var(--kb-inset, 0px);
+}
