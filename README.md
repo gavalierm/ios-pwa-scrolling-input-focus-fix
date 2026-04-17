@@ -202,10 +202,3 @@ reload picked up the latest code on-device.
 ## License
 
 MIT — use, adapt, republish as you see fit.
-
-## Credits
-
-Extracted from the [Spevník](https://spevnik.online) mobile-first PWA. The
-iteration history is visible in the git log of the containing project if you
-want to see the dead ends (rAF polling, ghost-click suppression, manual
-scrollTop calculations) that got pruned as we understood the problem better.
